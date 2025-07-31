@@ -43,6 +43,22 @@
                                         name="account_type" required="" id="account_type">
                                         <option value="">{{ __('Select Account Type') }}</option>
                                         @stack('account_type')
+                                        <option value="Account">{{ __('Account') }}</option>
+                                        <option value="Taskly">{{ __('Taskly') }}</option>
+                                        <option value="CMMS">{{ __('CMMS') }}</option>
+                                        <option value="RentalManagement">{{ __('RentalManagement') }}</option>
+                                        <option value="LMS">{{ __('LMS') }}</option>
+                                        <option value="LegalCaseManagement">{{ __('LegalCaseManagement') }}</option>
+                                        <option value="Sales">{{ __('Sales') }}</option>
+                                        <option value="Newspaper">{{ __('Newspaper') }}</option>
+                                        <option value="ChildcareManagement">{{ __('ChildcareManagement') }}</option>
+                                        <option value="MobileServiceManagement">{{ __('MobileServiceManagement') }}</option>
+                                        <option value="VehicleInspectionManagement">{{ __('VehicleInspectionManagement') }}</option>
+                                        <option value="MachineRepairManagement">{{ __('MachineRepairManagement') }}</option>
+                                        <option value="CarDealership">{{ __('CarDealership') }}</option>
+                                        <option value="MusicInstitute">{{ __('MusicInstitute') }}</option>
+                                        <option value="RestaurantMenu">{{ __('RestaurantMenu') }}</option>
+                                        <option value="Fleet">{{ __('Fleet') }}</option>
                                     </select>
                                     <div class="text-xs text-danger mt-1">
                                         {{ __('Please select carefully, you cannot edit the account type later.') }}

@@ -367,48 +367,7 @@
             $(".discount").change();
         });
         // for item SearchBox ( this function is  custom Js )
-        JsSearchBox();
-        $(document).on('change', '.product_type', function() {
-            var product_type = $(this).val();
-            var selector = $(this);
-            var itemSelect = selector.parent().parent().find('.product_id.item').attr('name');
-
-            $.ajax({
-                url: '{{ route('get.item') }}',
-                type: 'POST',
-                data: {
-                    "product_type": product_type,
-                    "_token": "{{ csrf_token() }}",
-                },
-                success: function(data) {
-                    selector.parent().parent().find('.product_id').empty();
-                    var product_select = `<select class="form-control product_id item js-searchBox" name="${itemSelect}"
-                                            placeholder="Select Item" data-url="{{ route('purchases.product') }}" required = 'required'>
-                                            </select>`;
-                    selector.parent().parent().find('.product_div').html(product_select);
-
-                    selector.parent().parent().find('.product_id').append(
-                        '<option value="0"> {{ __('Select Item') }} </option>');
-                    $.each(data, function(key, value) {
-                        selector.parent().parent().find('.product_id').append(
-                            '<option value="' + key + '">' + value +
-                            '</option>');
-                    });
-
-                    // Initialize your searchBox here if needed
-                    Items(selector.parent().parent().find('.product_id'));
-                    selector.parent().parent().find(".js-searchBox").searchBox({
-                        elementWidth: '250'
-                    });
-                    selector.parent().parent().find('.unit.input-group-text').text("");
-                    selector.parent().parent().find('.taxes .product_tax').text("");
-                }
-            });
-        });
-    </script>
-
-    <script>
-        $(document).ready(function() {
+        
             var optionsMap = {
                 'Accounting': 'Item Wise',
                 'Projects': 'Project Wise',
@@ -430,15 +389,17 @@
 
             $('#account_type').on('change', function() {
                 var selectedOption = $(this).val();
+                console.log('Account Type selected:', selectedOption); // Added log
                 $('#billing_type').empty();
                 if (optionsMap.hasOwnProperty(selectedOption)) {
                     var value = mapSelectionToValue(selectedOption);
+                    console.log('Mapped Billing Type value:', value); // Added log
                     if (value !== null) {
                         $('[name="purchase_type"]').append('<option value="' + value + '">' + optionsMap[selectedOption] + '</option>');
+                        console.log('Billing Type option appended:', optionsMap[selectedOption]); // Added log
                     }
                 }
             });
-        });
     </script>
 @endpush
 
@@ -515,6 +476,7 @@
                                             <select
                                                 class="form-control {{ !empty($errors->first('Billing Type')) ? 'is-invalid' : '' }}"
                                                 name="purchase_type" required="" id="billing_type">
+                                                <option value="">{{ __('Select Billing Type') }}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -530,7 +492,7 @@
                                 <div class="col-lg-6 col-12">
                                     <div class="form-group">
                                         {{ Form::label('category_id', __('Category'), ['class' => 'form-label']) }}<x-required></x-required>
-                                        {{ Form::select('category_id', $category, null, ['class' => 'form-control select', 'required' => 'required']) }}
+                                        {{ Form::select('category_id', $billCategories, null, ['class' => 'form-control select', 'required' => 'required']) }}
                                     </div>
                                 </div>
                             </div>
@@ -589,11 +551,12 @@
                             <thead>
                                 <tr>
                                     <th>{{ __('Item Type') }}</th>
+                                    <th>{{ __('Item Category') }}</th>
                                     <th>{{ __('Items') }}</th>
-                                    <th>{{ __('Quantity') }}</th>
-                                    <th>{{ __('Price') }} </th>
-                                    <th>{{ __('Tax') }} (%)</th>
-                                    <th>{{ __('Discount') }}</th>
+                                    <th class="text-end">{{ __('Quantity') }}</th>
+                                    <th class="text-end">{{ __('Price') }} </th>
+                                    <th class="text-end">{{ __('Tax') }} (%)</th>
+                                    <th class="text-end">{{ __('Discount') }}</th>
                                     <th class="text-end">{{ __('Amount') }} <br><small
                                             class="text-danger font-weight-bold">{{ __('After discount & tax') }}</small>
                                     </th>
@@ -605,7 +568,10 @@
                                     <td class="form-group pt-0">
                                         {{ Form::select('product_type', $product_type, null, ['class' => 'form-control product_type ', 'required' => 'required', 'placeholder' => '--']) }}
                                     </td>
-                                    <td width="25%" class="form-group pt-0 product_div">
+                                    <td class="form-group pt-0">
+                                        {{ Form::select('item_category', $itemCategories, null, ['class' => 'form-control item_category ', 'required' => 'required', 'placeholder' => 'Select Category']) }}
+                                    </td>
+                                    <td width="30%" class="form-group pt-0 product_div">
                                         <select name="item" class="form-control product_id item  js-searchBox"
                                             data-url="{{ route('purchases.product') }}" required>
                                             @foreach ($product_services as $key => $product_service)
@@ -613,20 +579,20 @@
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td>
-                                        <div class="form-group price-input input-group search-form" style="width: 160px">
+                                    <td class="text-end">
+                                        <div class="form-group price-input input-group search-form">
                                             {{ Form::number('quantity', '', ['class' => 'form-control quantity', 'required' => 'required', 'placeholder' => __('Qty'), 'required' => 'required','step'=>'0.01']) }}
 
                                             <span class="unit input-group-text bg-transparent"></span>
                                         </div>
                                     </td>
-                                    <td>
-                                        <div class="form-group price-input input-group search-form" style="width: 160px">
+                                    <td class="text-end">
+                                        <div class="form-group price-input input-group search-form">
                                             {{ Form::number('price', '', ['class' => 'form-control price', 'required' => 'required', 'placeholder' => __('Price'), 'required' => 'required','step'=>'0.01']) }}
                                             <span class="input-group-text bg-transparent">{{ $currancy_symbol }}</span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="text-end">
                                         <div class="form-group">
                                             <div class="input-group">
                                                 <div class="taxes"></div>
@@ -636,8 +602,8 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
-                                        <div class="form-group price-input input-group search-form">
+                                    <td class="text-end">
+                                        <div class="form-group price-input input-group search-form w-full">
                                             {{ Form::number('discount', '', ['class' => 'form-control discount', 'required' => 'required', 'placeholder' => __('Discount'),'step'=>'0.01']) }}
                                             <span class="input-group-text bg-transparent">{{ $currancy_symbol }}</span>
                                         </div>
@@ -671,7 +637,7 @@
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td></td>
-                                    <td><strong>{{ __('Sub Total') }} ({{ $currancy_symbol }})</strong></td>
+                                    <td class="text-end"><strong>{{ __('Sub Total') }} ({{ $currancy_symbol }})</strong></td>
                                     <td class="text-end subTotal">0.00</td>
                                     <td></td>
                                 </tr>
@@ -681,7 +647,7 @@
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td></td>
-                                    <td><strong>{{ __('Discount') }} ({{ $currancy_symbol }})</strong></td>
+                                    <td class="text-end"><strong>{{ __('Discount') }} ({{ $currancy_symbol }})</strong></td>
                                     <td class="text-end totalDiscount">0.00</td>
                                     <td></td>
                                 </tr>
@@ -691,7 +657,7 @@
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td></td>
-                                    <td><strong>{{ __('Tax') }} ({{ $currancy_symbol }})</strong></td>
+                                    <td class="text-end"><strong>{{ __('Tax') }} ({{ $currancy_symbol }})</strong></td>
                                     <td class="text-end totalTax">0.00</td>
                                     <td></td>
                                 </tr>
@@ -701,7 +667,7 @@
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
-                                    <td class="blue-text"><strong>{{ __('Total Amount') }}
+                                    <td class="blue-text text-end"><strong>{{ __('Total Amount') }}
                                             ({{ $currancy_symbol }})</strong></td>
                                     <td class="blue-text text-end totalAmount"></td>
                                     <td></td>

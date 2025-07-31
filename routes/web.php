@@ -283,6 +283,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('purchases/create/{cid}', [PurchaseController::class, 'create'])->name('purchases.create');
         Route::get('purchases/{id}/sent', [PurchaseController::class, 'sent'])->name('purchases.sent');
         Route::get('purchases/{id}/resent', [PurchaseController::class, 'resent'])->name('purchases.resent');
+        Route::post('get-item-category', [PurchaseController::class, 'getItemCategory'])->name('get.item.category');
+        Route::post('get-item', [PurchaseController::class, 'getItem'])->name('get.item');
 
 
         Route::get('purchases/{id}/debit-note', [PurchaseDebitNoteController::class, 'create'])->name('purchases.debit.note')->middleware(

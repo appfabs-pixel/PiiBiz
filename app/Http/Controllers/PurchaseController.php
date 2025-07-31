@@ -70,8 +70,11 @@ class PurchaseController extends Controller
                 $category = [];
                 $projects = [];
                 if (module_is_active('ProductService')) {
-                    $category = \Workdo\ProductService\Entities\Category::where('created_by', creatorId())->where('workspace_id', getActiveWorkSpace())->where('type', 2)->get()->pluck('name', 'id');
-                    $category->prepend('Select Category', '');
+                    $billCategories = \Workdo\ProductService\Entities\Category::where('created_by', creatorId())->where('workspace_id', getActiveWorkSpace())->where('type', 2)->get()->pluck('name', 'id');
+                    $billCategories->prepend('Select Category', '');
+
+                    $itemCategories = \Workdo\ProductService\Entities\Category::where('created_by', creatorId())->where('workspace_id', getActiveWorkSpace())->where('type', 0)->get()->pluck('name', 'id');
+                    $itemCategories->prepend('Select Category', '');
                 }
 
                 if (module_is_active('Taskly')) {
@@ -108,7 +111,7 @@ class PurchaseController extends Controller
             } else {
                 return redirect()->back()->with('error', __('Permission denied.'));
             }
-            return view('purchases.create', compact('venders', 'purchase_number', 'product_services', 'category', 'vendorId', 'warehouse', 'customFields', 'product_type', 'projects'));
+            return view('purchases.create', compact('venders', 'purchase_number', 'product_services', 'billCategories', 'itemCategories', 'vendorId', 'warehouse', 'customFields', 'product_type'));
         } else {
             return redirect()->back()->with('error', __('Permission denied.'));
         }
@@ -181,7 +184,6 @@ class PurchaseController extends Controller
                 for ($i = 0; $i < count($products); $i++) {
                     $purchaseProduct = new PurchaseProduct();
                     $purchaseProduct->purchase_id = $purchase->id;
-                    $purchaseProduct->product_type = $products[$i]['product_type'];
                     $purchaseProduct->product_id = $products[$i]['item'];
                     $purchaseProduct->quantity = $products[$i]['quantity'];
                     $purchaseProduct->tax = $products[$i]['tax'];
@@ -270,7 +272,6 @@ class PurchaseController extends Controller
                 for ($i = 0; $i < count($products); $i++) {
                     $purchaseProduct = new PurchaseProduct();
                     $purchaseProduct->purchase_id = $purchase->id;
-                    $purchaseProduct->product_type = $products[$i]['product_type'];
                     $purchaseProduct->product_id = $products[$i]['item'];
                     $purchaseProduct->quantity = $products[$i]['quantity'];
                     $purchaseProduct->tax = $products[$i]['tax'];
@@ -357,7 +358,6 @@ class PurchaseController extends Controller
                 for ($i = 0; $i < count($products); $i++) {
                     $purchaseProduct = new PurchaseProduct();
                     $purchaseProduct->purchase_id = $purchase->id;
-                    $purchaseProduct->product_type = $products[$i]['product_type'];
                     $purchaseProduct->product_id = $products[$i]['item'];
                     $purchaseProduct->quantity = $products[$i]['quantity'];
                     $purchaseProduct->tax = $products[$i]['tax'];
@@ -473,9 +473,8 @@ class PurchaseController extends Controller
                 } else {
                     $customFields = null;
                 }
-                $product_type = \Workdo\ProductService\Entities\ProductService::$product_type;
 
-                return view('purchases.edit', compact('venders', 'product_services', 'purchase', 'warehouse', 'purchase_number', 'category', 'customFields', 'product_type'));
+                return view('purchases.edit', compact('venders', 'product_services', 'purchase', 'warehouse', 'purchase_number', 'category', 'customFields'));
             } else {
                 return redirect()->back()->with('error', __('Permission denied.'));
             }
@@ -585,7 +584,6 @@ class PurchaseController extends Controller
                     if (isset($products[$i]['item'])) {
                         $purchaseProduct->product_id = $products[$i]['item'];
                     }
-                    $purchaseProduct->product_type = $products[$i]['product_type'];
                     $purchaseProduct->quantity = $products[$i]['quantity'];
                     $purchaseProduct->tax = $products[$i]['tax'];
                     $purchaseProduct->discount = $products[$i]['discount'];
@@ -1121,38 +1119,37 @@ class PurchaseController extends Controller
         $totalTaxPrice = 0;
         $taxesData = [];
         $items = [];
-        for ($i = 1; $i <= 3; $i++) {
-            $item = new \stdClass();
-            $item->name = 'Item ' . $i;
-            $item->quantity = 1;
-            $item->tax = 5;
-            $item->discount = 50;
-            $item->price = 100;
-            $item->description = 'In publishing and graphic design, Lorem ipsum is a placeholder';
+      for ($i = 1; $i <= 3; $i++) {
+        $item = new \stdClass();
+        $item->name = 'Item ' . $i;
+        $item->quantity = 1;
+        $item->tax = 5;
+        $item->discount = 50;
+        $item->price = 100;
+        $item->description = 'In publishing and graphic design, Lorem ipsum is a placeholder';
 
-            $taxes = [
-                'Tax 1',
-                'Tax 2',
-            ];
+        $taxes = [
+            'Tax 1',
+            'Tax 2',
+        ];
 
             $itemTaxes = [];
-            foreach ($taxes as $k => $tax) {
+    foreach ($taxes as $k => $tax) {
                 $taxPrice = 10;
                 $totalTaxPrice += $taxPrice;
-                $itemTax['name'] = 'Tax ' . $k;
+                $itemTax['name'] = 'Tax ' . ($k + 1); // Corrected index for display
                 $itemTax['rate'] = '10 %';
                 $itemTax['price'] = '$10';
                 $itemTaxes[] = $itemTax;
-                if (array_key_exists('Tax ' . $k, $taxesData)) {
-                    $taxesData['Tax ' . $k] = $taxesData['Tax 1'] + $taxPrice;
+                if (array_key_exists('Tax ' . ($k + 1), $taxesData)) {
+                    $taxesData['Tax ' . ($k + 1)] = $taxesData['Tax ' . ($k + 1)] + $taxPrice;
                 } else {
-                    $taxesData['Tax ' . $k] = $taxPrice;
+                    $taxesData['Tax ' . ($k + 1)] = $taxPrice;
                 }
             }
-            $item->itemTax = $itemTaxes;
-            $items[] = $item;
-        }
-
+    $item->itemTax = $itemTaxes;
+    $items[] = $item;
+}
         $purchase->purchase_id = 1;
         $purchase->issue_date = date('Y-m-d H:i:s');
         $purchase->itemData = $items;
@@ -1440,7 +1437,7 @@ class PurchaseController extends Controller
         }
     }
 
-    public function fileUploadDestroy($id)
+       public function fileUploadDestroy($id)
     {
         $file = PurchaseAttachment::find($id);
 
@@ -1450,4 +1447,25 @@ class PurchaseController extends Controller
         $file->delete();
         return redirect()->back()->with('success', __('The file has been deleted'));
     }
+
+    public function getItemCategory(Request $request)
+    {
+        $product_type = $request->product_type;
+        $category = [];
+        if (module_is_active('ProductService')) {
+            $category = \Workdo\ProductService\Entities\Category::where('created_by', creatorId())->where('workspace_id', getActiveWorkSpace())->where('type', $product_type)->get()->pluck('name', 'id');
+        }
+        return response()->json($category);
+    }
+
+    public function getItem(Request $request)
+    {
+        $category_id = $request->category_id;
+        $product_services = [];
+        if (module_is_active('ProductService')) {
+            $product_services = \Workdo\ProductService\Entities\ProductService::where('created_by', creatorId())->where('workspace_id', getActiveWorkSpace())->where('category_id', $category_id)->get()->pluck('name', 'id');
+        }
+        return response()->json($product_services);
+    }
 }
+
