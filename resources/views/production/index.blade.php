@@ -66,11 +66,30 @@
                                 <tr>
                                     <th>{{__('Product Name')}}</th>
                                     <th>{{__('Quantity')}}</th>
-                                    <th class="text-end">{{__('Action')}}</th> {{-- For the remove button --}}
+                                    <th class="text-end">{{__('Action')}}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- Table body will be populated here by JavaScript --}}
+                                {{-- Permanent 3 rows --}}
+                                @for($i = 1; $i <= 3; $i++)
+                                    <tr id="row{{ $i }}">
+                                        <td>
+                                            <select name="product_name[]" class="form-control product_select">
+                                                <option value="">Select Product</option>
+                                                @foreach($productServices as $product)
+                                                    <option value="{{ $product['id'] }}">{{ $product['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="quantity[]" placeholder="Enter Quantity"
+                                                   class="form-control product-quantity-input" data-row-id="{{ $i }}" min="0" />
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" name="remove" id="{{ $i }}" class="btn btn-sm btn-danger btn_remove">X</button>
+                                        </td>
+                                    </tr>
+                                @endfor
                             </tbody>
                         </table>
                     </div>
@@ -87,15 +106,14 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        var i = 0; // Start index from 0 for unique IDs
-        var productServices = @json($productServices); // All product services
-        var totalCategoryStock = 0; // Total stock for the selected item category
-        var initialUsageAmount = 0; // The initial value entered in usage_quantity
+        var i = 3; // Start index at 3 because we already have 3 rows
+        var productServices = @json($productServices);
+        var totalCategoryStock = 0;
+        var initialUsageAmount = 0;
         var $availableQuantityInput = $('#available_quantity');
         var $usageQuantityInput = $('#usage_quantity');
         var $productionTableBody = $('#production_table tbody');
 
-        // Function to calculate total allocated quantity from product rows
         function calculateTotalAllocated() {
             var allocated = 0;
             $productionTableBody.find('.product-quantity-input').each(function() {
@@ -104,19 +122,13 @@
             return allocated;
         }
 
-        // Function to update both available_quantity and usage_quantity displays
         function updateQuantitiesDisplay() {
             var allocated = calculateTotalAllocated();
-
-            // Available Quantity: total stock - initial usage (does not change with product allocation)
             var currentAvailable = totalCategoryStock - initialUsageAmount;
             $availableQuantityInput.val(currentAvailable);
-
-            // Usage Quantity: initial usage - allocated product quantities
             var remainingUsage = initialUsageAmount - allocated;
             $usageQuantityInput.val(remainingUsage);
 
-            // Check for "Product Finished" based on remaining usage
             if (remainingUsage <= 0 && initialUsageAmount > 0) {
                 $usageQuantityInput.addClass('product-finished').attr('title', 'Product Finished');
                 alert('Product Finished! All usage quantity has been allocated.');
@@ -125,33 +137,32 @@
             }
         }
 
-        // Event listener for item_category change
         $('#item_category').change(function() {
             var selectedCategoryId = $(this).val();
             totalCategoryStock = 0;
-            initialUsageAmount = 0; // Reset initial usage amount
-            $usageQuantityInput.val(''); // Clear usage quantity input
-            $productionTableBody.empty(); // Clear product rows
+            initialUsageAmount = 0;
+            $usageQuantityInput.val('');
+            $productionTableBody.find('tr').each(function() {
+                $(this).find('.product_select').val('');
+                $(this).find('.product-quantity-input').val('');
+            });
 
             if (selectedCategoryId) {
                 var filteredProducts = productServices.filter(function(product) {
                     return product.category_id == selectedCategoryId;
                 });
-
                 filteredProducts.forEach(function(product) {
                     totalCategoryStock += product.quantity;
                 });
             }
-            updateQuantitiesDisplay(); // Update quantities display
+            updateQuantitiesDisplay();
         });
 
-        // Event listener for usage_quantity input (initial entry)
         $usageQuantityInput.on('keyup change', function() {
             initialUsageAmount = parseFloat($(this).val()) || 0;
             updateQuantitiesDisplay();
         });
 
-        // Add row button click
         $("#add_row").click(function() {
             i++;
             var newRow = '<tr id="row' + i + '">' +
@@ -167,19 +178,27 @@
             $productionTableBody.append(newRow);
         });
 
-        // Remove row button click
+        $(document).on('change', '.product_select', function() {
+            var productName = $(this).find('option:selected').text();
+            var row = $(this).closest('tr');
+            row.removeClass('table-danger table-success');
+            if (productName.toLowerCase().includes('pure waste')) {
+                row.addClass('table-danger');
+            } else if (productName.toLowerCase().includes('reusable')) {
+                row.addClass('table-success');
+            }
+        });
+
         $(document).on('click', '.btn_remove', function() {
             var button_id = $(this).attr("id");
             $('#row' + button_id).remove();
-            updateQuantitiesDisplay(); // Recalculate after removing a row
+            updateQuantitiesDisplay();
         });
 
-        // Event listener for quantity input in product rows
         $(document).on('keyup change', '.product-quantity-input', function() {
-            updateQuantitiesDisplay(); // Update quantities based on new allocation
+            updateQuantitiesDisplay();
         });
 
-        // Save production button functionality (existing)
         $("#save_production").click(function() {
             var purchaseCategory = $('#purchase_category').val();
             var itemCategory = $('#item_category').val();
@@ -202,15 +221,11 @@
                 quantity: quantities
             };
 
-            console.log('Sending AJAX request...');
-            console.log('Data:', data);
-
             $.ajax({
                 url: '{{ route('production.store') }}',
                 type: 'POST',
                 data: data,
                 success: function(response) {
-                    console.log('AJAX success:', response);
                     if (response.success) {
                         show_toastr('Success', response.message, 'success');
                         location.reload();
@@ -219,7 +234,6 @@
                     }
                 },
                 error: function(xhr) {
-                    console.error('AJAX error:', xhr.status, xhr.statusText, xhr.responseJSON);
                     var errors = xhr.responseJSON.errors;
                     var errorMessage = '';
                     for (var key in errors) {
@@ -230,7 +244,6 @@
             });
         });
 
-        // Trigger change on page load if a category is pre-selected
         $('#item_category').trigger('change');
     });
 </script>

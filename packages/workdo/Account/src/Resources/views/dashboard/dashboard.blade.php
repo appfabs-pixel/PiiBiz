@@ -14,12 +14,21 @@
     </style>
 @endpush
 @section('content')
+    {{-- Cards row --}}
     <div class="row">
-        <div class="col-lg-4 col-md-6">
+        <div class="col-lg-2 col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Raw Material Purchases</h5>
+                    <h5 class="card-title">Purchases</h5>
                     <h3>{{ $totalPurchases }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Stock</h5>
+                    <h3>{{ $totalStock }}</h3>
                 </div>
             </div>
         </div>
@@ -40,7 +49,7 @@
             </div>
         </div>
         <div class="col-lg-2 col-md-6">
-            <div class="card">
+            <div class="card text-white bg-danger">
                 <div class="card-body">
                     <h5 class="card-title">Wastage</h5>
                     <h3>{{ $totalWastage }}</h3>
@@ -48,7 +57,7 @@
             </div>
         </div>
         <div class="col-lg-2 col-md-6">
-            <div class="card">
+            <div class="card text-white bg-success">
                 <div class="card-body">
                     <h5 class="card-title">Reused</h5>
                     <h3>{{ $Reusable }}</h3>
@@ -57,15 +66,8 @@
         </div>
     </div>
 
+    {{-- Graphs row --}}
     <div class="row mt-4">
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Raw Material Purchases</h5>
-                    <canvas id="purchasesChart"></canvas>
-                </div>
-            </div>
-        </div>
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
@@ -74,9 +76,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="row mt-4">
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
@@ -85,6 +84,9 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="row mt-4">
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
@@ -93,32 +95,27 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Purchases</h5> {{-- Renamed --}}
+                    <canvas id="purchasesChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
+
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            var purchasesCtx = document.getElementById('purchasesChart').getContext('2d');
             var productionCtx = document.getElementById('productionChart').getContext('2d');
             var salesCtx = document.getElementById('salesChart').getContext('2d');
             var wastageCtx = document.getElementById('wastageChart').getContext('2d');
+            var purchasesCtx = document.getElementById('purchasesChart').getContext('2d');
 
-            var purchasesChart = new Chart(purchasesCtx, {
-                type: 'line',
-                data: {
-                    labels: {!! json_encode($labels) !!},
-                    datasets: [{
-                        label: 'Raw Material Purchases',
-                        data: {!! json_encode($purchasesData) !!},
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderWidth: 1
-                    }]
-                }
-            });
-
-            var productionChart = new Chart(productionCtx, {
+            new Chart(productionCtx, {
                 type: 'line',
                 data: {
                     labels: {!! json_encode($labels) !!},
@@ -132,7 +129,7 @@
                 }
             });
 
-            var salesChart = new Chart(salesCtx, {
+            new Chart(salesCtx, {
                 type: 'line',
                 data: {
                     labels: {!! json_encode($labels) !!},
@@ -146,7 +143,7 @@
                 }
             });
 
-            var wastageChart = new Chart(wastageCtx, {
+            new Chart(wastageCtx, {
                 type: 'line',
                 data: {
                     labels: {!! json_encode($labels) !!},
@@ -155,6 +152,20 @@
                         data: {!! json_encode($wastageData) !!},
                         borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderWidth: 1
+                    }]
+                }
+            });
+
+            new Chart(purchasesCtx, {
+                type: 'line',
+                data: {
+                    labels: {!! json_encode($labels) !!},
+                    datasets: [{
+                        label: 'Purchases', // Changed label
+                        data: {!! json_encode($purchasesData) !!},
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderWidth: 1
                     }]
                 }

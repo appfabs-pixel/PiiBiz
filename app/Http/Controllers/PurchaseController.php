@@ -1452,4 +1452,10 @@ class PurchaseController extends Controller
         $file->delete();
         return redirect()->back()->with('success', __('The file has been deleted'));
     }
+
+    public function getProductByCategory(Request $request)
+    {
+        $product_services = \Workdo\ProductService\Entities\ProductService::where('category_id', $request->category_id)->get()->pluck('name', 'id');
+        return response()->json($product_services);
+    }
 }

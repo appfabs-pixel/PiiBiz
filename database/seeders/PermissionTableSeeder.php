@@ -177,6 +177,10 @@ class PermissionTableSeeder extends Seeder
                 'warehouse show',
                 'warehouse import',
                 'referral program manage',
+                'category manage',
+                'category create',
+                'category edit',
+                'category delete',
             ];
 
 

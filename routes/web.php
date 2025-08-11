@@ -285,6 +285,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('purchases/product/destroy', [PurchaseController::class, 'productDestroy'])->name('purchases.product.destroy');
         Route::post('purchases/vender', [PurchaseController::class, 'vender'])->name('purchases.vender');
         Route::post('purchases/product', [PurchaseController::class, 'product'])->name('purchases.product');
+        Route::post('purchases/get-product-by-category', [PurchaseController::class, 'getProductByCategory'])->name('purchases.get_product_by_category');
         Route::get('purchases/create/{cid}', [PurchaseController::class, 'create'])->name('purchases.create');
         Route::get('purchases/{id}/sent', [PurchaseController::class, 'sent'])->name('purchases.sent');
         Route::get('purchases/{id}/resent', [PurchaseController::class, 'resent'])->name('purchases.resent');

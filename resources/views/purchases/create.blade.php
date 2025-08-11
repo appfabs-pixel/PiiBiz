@@ -368,6 +368,25 @@
         });
         // for item SearchBox ( this function is  custom Js )
         JsSearchBox();
+        $(document).on('change', '.item_category', function() {
+            var category_id = $(this).val();
+            var selector = $(this);
+            $.ajax({
+                url: '{{ route('purchases.get_product_by_category') }}',
+                type: 'POST',
+                data: {
+                    "category_id": category_id,
+                    "_token": "{{ csrf_token() }}",
+                },
+                success: function(data) {
+                    selector.parent().parent().find('.product_id').empty();
+                    selector.parent().parent().find('.product_id').append('<option value="">{{ __("Select Item") }}</option>');
+                    $.each(data, function(key, value) {
+                        selector.parent().parent().find('.product_id').append('<option value="' + key + '">' + value + '</option>');
+                    });
+                }
+            });
+        });
         $(document).on('change', '.product_type', function() {
             var product_type = $(this).val();
             var selector = $(this);
@@ -588,7 +607,6 @@
                         <table class="table mb-0" data-repeater-list="items" id="sortable-table">
                             <thead>
                                 <tr>
-                                    <th>{{ __('Item Type') }}</th>
                                     <th>{{ __('Item Category') }}</th>
                                     <th>{{ __('Items') }}</th>
                                     <th>{{ __('Quantity') }}</th>
@@ -603,9 +621,6 @@
                             </thead>
                             <tbody class="ui-sortable" data-repeater-item>
                                 <tr>
-                                    <td class="form-group pt-0">
-                                        {{ Form::select('product_type', $product_type, null, ['class' => 'form-control product_type ', 'required' => 'required', 'placeholder' => '--']) }}
-                                    </td>
                                     <td class="form-group pt-0">
                                           {{ Form::select('item_category', isset($product_category) ? $product_category : [], null, ['class' => 'form-control item_category', 'required' => 'required', 'placeholder' => __('Select Category')]) }}
                                     </td>
@@ -660,7 +675,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2">
+                                    <td colspan="1">
                                         <div class="form-group">
                                             {{ Form::textarea('description', null, ['class' => 'form-control pro_description', 'rows' => '2', 'placeholder' => __('Description')]) }}
                                         </div>

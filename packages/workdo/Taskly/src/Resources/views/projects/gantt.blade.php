@@ -155,7 +155,7 @@
                                         <td colspan="10" class="text-center">
                                             <div class="text-center">
                                                 <i class="fas fa-folder-open text-primary fs-40"></i>
-                                                <h2>{{ __('Opps...') }}</h2>
+                                                <h2>{{ __('Oops...') }}</h2>
                                                 <h6> {!! __('No Data Found') !!} </h6>
                                                 <small>{{__("Please create at least one task to show here.. ")}}
                                             </div>

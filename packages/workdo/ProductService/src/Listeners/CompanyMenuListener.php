@@ -19,7 +19,7 @@ class CompanyMenuListener
             'icon' => 'shopping-cart',
             'name' => 'product-service',
             'parent' => null,
-            'order' => 100,
+            'order' => 2,
             'ignore_if' => [],
             'depend_on' => [],
             'route' => 'product-service.index',
@@ -32,25 +32,13 @@ class CompanyMenuListener
             'icon' => 'box',
             'name' => 'production',
             'parent' => null,
-            'order' => 101,
+            'order' => 4,
             'ignore_if' => [],
             'depend_on' => [],
             'route' => 'production.index',
             'module' => $module,
             'permission' => 'product&service manage'
         ]);
-        $menu->add([
-            'category' => 'General',
-            'title' => __('Sales'),
-            'icon' => 'businessplan',
-            'name' => 'sales',
-            'parent' => 'production',
-            'order' => 102,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'sales.index',
-            'module' => $module,
-            'permission' => ''
-        ]);
+        
     }
 }

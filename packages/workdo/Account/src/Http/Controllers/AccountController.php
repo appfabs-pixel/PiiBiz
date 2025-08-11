@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Validator;
 use Workdo\Account\Entities\AccountUtility;
 use App\Models\Invoice;
 
-
 class AccountController extends Controller
 {
     /**
@@ -25,6 +24,7 @@ class AccountController extends Controller
             $this->middleware('2fa');
         }
     }
+
     public function index()
     {
         if(Auth::check())
@@ -32,11 +32,25 @@ class AccountController extends Controller
             if (Auth::user()->isAbleTo('account dashboard manage'))
             {
                 // Placeholder data for cards
-                $data['totalPurchases'] = '300 kg';
-                $data['totalProduction'] = '200 kg';
-                $data['totalSales'] = '180 kg';
-                $data['totalWastage'] = '10 kg';
-                $data['Reusable'] = '10 kg';
+                $data['totalPurchases']   = '300 kg';
+                $data['totalProduction']  = '200 kg';
+                $data['totalSales']       = '180 kg';
+                $data['totalWastage']     = '10 kg';
+                $data['Reusable']         = '10 kg';
+
+                // <-- Add totalStock here to satisfy the view -->
+                $data['totalStock'] = '120 kg'; // <-- placeholder, replace with real calculation below if desired
+
+                /*
+                 * If you have a Stock/Inventory model and want a real total, you can do something like:
+                 *
+                 * use App\Models\Stock; // add at top if available
+                 * $quantitySum = Stock::sum('quantity'); // or appropriate column name
+                 * $data['totalStock'] = $quantitySum . ' kg';
+                 *
+                 * Or compute as purchases - sales - wastage + reused depending on your data model:
+                 * $data['totalStock'] = ($purchasesQty - $salesQty - $wastageQty + $reusedQty) . ' kg';
+                 */
 
                 // Placeholder data for graphs
                 $data['labels'] = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
@@ -118,6 +132,7 @@ class AccountController extends Controller
     {
         //
     }
+
     public function setting(Request $request)
     {
         $validator = Validator::make($request->all(),
@@ -137,7 +152,6 @@ class AccountController extends Controller
             unset($post['_token']);
             foreach ($post as $key => $value) {
                 // Define the data to be updated or inserted
-
                 $data = [
                     'key' => $key,
                     'workspace' => $getActiveWorkSpace,
@@ -152,6 +166,4 @@ class AccountController extends Controller
             return redirect()->back()->with('success','Account setting save sucessfully.');
         }
     }
-
-
 }

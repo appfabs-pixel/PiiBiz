@@ -45,7 +45,7 @@ class CompanyMenuListener
             'icon' => 'layout-grid-add',
             'name' => 'accounting',
             'parent' => null,
-            'order' => 400,
+            'order' => 7,
             'ignore_if' => [],
             'depend_on' => [],
             'route' => '',

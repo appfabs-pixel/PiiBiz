@@ -85,12 +85,26 @@ class CompanyMenuListener
             'icon' => 'businessplan',
             'name' => 'sales',
             'parent' => null,
-            'order' => 240,
+            'order' => 5,
             'ignore_if' => [],
             'depend_on' => [],
             'route' => 'sales.index',
             'module' => $module,
             'permission' => 'sales manage'
+        ]);
+
+        $menu->add([
+            'category' => 'General',
+            'title' => __('Category'),
+            'icon' => 'tag',
+            'name' => 'category',
+            'parent' => null,
+            'order' => 6,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'category.index',
+            'module' => $module,
+            'permission' => 'category manage'
         ]);
 
 
@@ -101,7 +115,7 @@ class CompanyMenuListener
             'icon' => 'shopping-cart',
             'name' => 'purchases',
             'parent' => null,
-            'order' => 250,
+            'order' => 3,
             'ignore_if' => [],
             'depend_on' => ['Account','Taskly'],
             'route' => '',

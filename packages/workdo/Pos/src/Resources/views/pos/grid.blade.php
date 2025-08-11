@@ -121,7 +121,7 @@
     <div class="row product-row justify-content-center">
         <div class="text-center">
             <i class="fas fa-folder-open text-gray" style="font-size: 48px;"></i>
-            <h2>{{ __('Opps...') }}</h2>
+            <h2>{{ __('Oops...') }}</h2>
             <h6> {!! __('No data Found.') !!} </h6>
         </div>
     </div>
@@ -204,7 +204,7 @@
         <div class="row product-row justify-content-center">
             <div class="text-center">
                 <i class="fas fa-folder-open text-gray" style="font-size: 48px;"></i>
-                <h2>{{ __('Opps...') }}</h2>
+                <h2>{{ __('Oops...') }}</h2>
                 <h6> {!! __('No data Found.') !!} </h6>
             </div>
         </div>

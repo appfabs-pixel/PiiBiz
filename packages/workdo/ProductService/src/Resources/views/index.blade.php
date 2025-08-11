@@ -51,12 +51,7 @@
                             <div class="col-xl-6">
                                 <div class="row">
 
-                                    <div class="col-xl-6 col-lg-3 col-md-6 col-sm-12 col-12">
-                                        <div class="btn-box">
-                                            {{ Form::label('item_type', __('Item'), ['class' => 'form-label']) }}
-                                            {{ Form::select('item_type', $product_type, isset($_GET['item_type']) ? $_GET['item_type'] : '', ['class' => 'form-control ', 'placeholder' => __('Select Item Type')]) }}
-                                        </div>
-                                    </div>
+                                    
 
                                     <div class="col-xl-6 col-lg-3 col-md-6 col-sm-12 col-12">
                                         <div class="btn-box">

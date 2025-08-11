@@ -55,18 +55,9 @@ class ProductServiceDataTable extends DataTable
                 return optional($productService->categorys)->name ?? '';
             })
             ->filterColumn('category_id', function ($query, $keyword) {
-                $query->whereHas('category', function ($q) use ($keyword) {
-                    $q->where('name', 'like', "%$keyword%");
-                });
+                $query->where('product_services.category_id', $keyword);
             })
-            ->filterColumn('unit_id', function ($query, $keyword) {
-                $query->whereHas('units', function ($q) use ($keyword) {
-                    $q->where('name', 'like', "%$keyword%");
-                });
-            })
-            ->filterColumn('tax_id', function ($query, $keyword) {
-                $query->where('taxes.name', 'like', "%$keyword%");
-            })
+
             ->editColumn('unit_id', function (ProductService $productService) {
                 return optional($productService->units)->name ?? '';
             })
@@ -226,7 +217,14 @@ class ProductServiceDataTable extends DataTable
                   var toastList = toastElList.map(function (toastEl) {
                     return new bootstrap.Toast(toastEl);
                   });
-            }'
+            }',
+            'createdRow' => "function(row, data, dataIndex) {
+                if (data.name.toLowerCase().includes('pure waste')) {
+                    $(row).addClass('table-danger');
+                } else if (data.name.toLowerCase().includes('reusable')) {
+                    $(row).addClass('table-success');
+                }
+            }"
         ]);
 
         $dataTable->language([
